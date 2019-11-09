@@ -1,0 +1,13 @@
+{
+	"token": "DISCORD_TOKEN",
+	"servers": [
+		{
+			"channel": "DISCORD_CHANNEL",
+			"dbHost": "MYSQL_HOST",
+			"dbUser": "MYSQL_USER",
+			"dbPassword": "MYSQL_PASSWORD",
+			"db": "MYSQL_DB",
+			"dbTable": "MYSQL_TABLE"
+		}
+	]
+}
