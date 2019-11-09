@@ -1,0 +1,9 @@
+{
+	"token":"your discord bot token here",
+	"servers":[
+	{"channel":"channelId to controll",
+	"dbHost":"database address",
+	"dbUser":"database user",
+	"dbPassword":"database password",
+	"db":"database name"}]
+}
