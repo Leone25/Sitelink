@@ -10,11 +10,11 @@ I made this realy quick for a friend, so don't expect much.
  - Include time, id and id of the author of the message
 
  ## How to set up
-  1. First make shure that you have the latest version of [node js](nodejs.org) installed.
+  1. First make shure that you have the latest version of [node js](https://nodejs.org/en/) installed.
   2. Run this command in a command prompt to install all the libraries required to run the code: ``` npm i mysql discord.js ``` .
   3. Copy the example and open the config file and add your bot key.
   4. Next put all the required setting about wich channel would you like to be checked (Put the ID that can be obtained by right clicking on the channel name on the channel list), and all the information reguarding the database you'd like the information to be sent. Note that you can put as much channels and server as you want as the 'servers' parameter is an array. 
-  5. Save and with the help of the [developer portal on the discord website](discordapp.com/developers) make your bot join the server in wich the channel to check is present.
+  5. Save and with the help of the [developer portal on the discord website](https://discordapp.com/developers) make your bot join the server in wich the channel to check is present.
   6. Setup the database table with the following query, replacing "TABLE_NAME" as appropriate.
   ```
   CREATE TABLE `TABLE_NAME` (
