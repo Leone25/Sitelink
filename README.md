@@ -7,19 +7,20 @@ I made this realy quick for a friend, so don't expect much.
  - Dump messages to mySQL database
  - Scalable, this bot is able to work across multiple servers at the same time, with the same code running and can be configured all from the config file
  - Auto extraction of links and attachments that are passed as json elements to the database
- - Include time, id and id of the author of the message
+ - Include time stamp and id of the message
+ - Able to choose if to send the id, username or tag of the author of the message according to what's needed
 
  ## How to set up
   1. First make shure that you have the latest version of [node js](https://nodejs.org/en/) installed.
   2. Run this command in a command prompt to install all the libraries required to run the code: ``` npm i mysql discord.js ``` .
   3. Copy the example and open the config file and add your bot key.
-  4. Next put all the required setting about wich channel would you like to be checked (Put the ID that can be obtained by right clicking on the channel name on the channel list), and all the information reguarding the database you'd like the information to be sent. Note that you can put as much channels and server as you want as the 'servers' parameter is an array. 
+  4. Next put all the required setting about wich channel would you like to be checked (Put the ID that can be obtained by right clicking on the channel name on the channel list), and all the information reguarding the database you'd like the information to be sent. Note that you can put as much channels and server as you want as the 'servers' parameter is an array. Also here you are able to choose how the name of the user is save in the database with the setting 'userNameSetting'. This is for each server individualy and my default it's setted to the tag (username + discriminator), if you set it to 0 you get the id, if you set it 1 it sends the username only, anything else goes to default value.
   5. Save and with the help of the [developer portal on the discord website](https://discordapp.com/developers) make your bot join the server in wich the channel to check is present.
   6. Setup the database table with the following query, replacing "TABLE_NAME" as appropriate.
   ```
   CREATE TABLE `TABLE_NAME` (
   `message` longtext NOT NULL,
-  `id` varchar(25) NOT NULL,
+  `id` text NOT NULL,
   `time` varchar(25) NOT NULL,
   `user` text NOT NULL,
   `links` text NOT NULL,
