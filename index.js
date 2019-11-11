@@ -41,8 +41,16 @@ client.on('message', message => {
 		password : serverData.dbPassword,
 		database : serverData.db
 	});
+	
+	if (serverData.userNameSetting == 0) {
+		var author = message.author.id;
+	} else if (serverData.userNameSetting == 1) {
+		var author = message.author.username;
+	} else {
+		var author = message.author.tag;
+	}
 
-	var post = {message:message.content, id:message.id, time:message.createdTimestamp, user:message.author.id, links:JSON.stringify(l), images:JSON.stringify(i)};
+	var post = {message:message.content, id:message.id, time:message.createdTimestamp, user:author, links:JSON.stringify(l), images:JSON.stringify(i)};
 	var sql = 'INSERT INTO '+serverData.dbTable+' SET ?';
 	connection.connect();
 

@@ -3,6 +3,7 @@
 	"servers": [
 		{
 			"channel": "DISCORD_CHANNEL",
+			"userNameSetting": "AUTHOR_SAVE_SETTING",
 			"dbHost": "MYSQL_HOST",
 			"dbUser": "MYSQL_USER",
 			"dbPassword": "MYSQL_PASSWORD",
