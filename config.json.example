@@ -4,6 +4,7 @@
 		{
 			"channel": "DISCORD_CHANNEL",
 			"mentionsMode": "2",
+			"authorMode": "2",
 			"dbHost": "MYSQL_HOST",
 			"dbUser": "MYSQL_USER",
 			"dbPassword": "MYSQL_PASSWORD",

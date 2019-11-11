@@ -63,9 +63,9 @@ client.on('message', message => {
 		}
 	}
 
-	if (serverData.mentionsMode == 0) {
+	if (serverData.authorMode == 0) {
 		var author = message.author.id;
-	} else if (serverData.mentionsMode == 1) {
+	} else if (serverData.authorMode == 1) {
 		var author = message.author.username;
 	} else {
 		var author = message.author.tag;
