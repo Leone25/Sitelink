@@ -1,7 +1,6 @@
-# Message to mysql database discord bot
-The purpose of this bot is to dump the messages sent in a chat channel of discord to a mySQL database, with content, time, id, sender id, attachments links and image links all separated.
-
-I made this realy quick for a friend, so don't expect much.
+# SiteLink
+## Message to mysql database discord bot
+The purpose of this bot is to dump the messages sent in a chat channel of discord to a MySQL database, with content, time, id, sender id, attachments links and image links all separated.
 
 ## Features
  - Dump messages to mySQL database
@@ -11,12 +10,26 @@ I made this realy quick for a friend, so don't expect much.
  - Able to choose if to send the id, username or tag of the author of the message according to what's needed
 
  ## How to set up
-  1. First make shure that you have the latest version of [node js](https://nodejs.org/en/) installed.
-  2. Run this command in a command prompt to install all the libraries required to run the code: ``` npm i mysql discord.js ``` .
-  3. Copy the example and open the config file and add your bot key.
-  4. Next put all the required setting about wich channel would you like to be checked (Put the ID that can be obtained by right clicking on the channel name on the channel list), and all the information reguarding the database you'd like the information to be sent. Note that you can put as much channels and server as you want as the 'servers' parameter is an array. Also here you are able to choose how the name of the user is save in the database with the setting 'mentionsMode' and 'authorMode'. This is for each server individualy and my default it's setted to the tag (username + discriminator), if you set it to 0 you get the id, if you set it 1 it sends the username only, anything else goes to default value.
-  5. Save and with the help of the [developer portal on the discord website](https://discordapp.com/developers) make your bot join the server in wich the channel to check is present.
-  6. Setup the database table with the following query, replacing "TABLE_NAME" as appropriate.
+  1. First make shure that you have the latest version of [NodeJS](https://nodejs.org/en/) and [MySQL](https://www.mysql.com/) installed.
+  2. Run this command in a command prompt to install all the libraries required to run the code: `npm install` .
+  3. Copy the example config to `config.json` and configure as detailed below.
+
+  |Setting|Description|
+  |--|--|
+  |`token`|Discord API bot token|
+  |`servers`|Arrays of configured servers|
+  |`servers.channel`|ID of Discord channel to listen to|
+  |`servers.mentionsMode`| Conversion settings for user mentions in Discord messages. 0 will set as the user ID, e.g. `@182925154211332097`. 1 will set as just the username, e.g. `@Owen`. Anything else will set as the username + discriminator, e.g. `@Owen#1111`|
+  |`servers.authorMode`|Same settings as `mentionsMode` but for message authors|
+  |`servers.dbHost`|MySQL database host|
+  |`servers.dbUser`|MySQL database username|
+  |`servers.dbPassword`|MySQL database password|
+  |`servers.db`|MySQL database to store data in|
+  |`servers.dbTable`|MySQL database table to store data in|
+
+ 
+  4. Connect your bot to your guild, guidance on [developer portal on the discord website](https://discordapp.com/developers).
+  5. Setup the MySQL database table with the following query, replacing "TABLE_NAME" as appropriate.
   ```
   CREATE TABLE `TABLE_NAME` (
   `message` longtext NOT NULL,
@@ -33,7 +46,7 @@ I made this realy quick for a friend, so don't expect much.
 ## To do stuff
  - Make the bot automaticly send message that hasn't been send to the db on boot
  - Make the bot update data in the database if someone edits a message( and probably add a parameter on the db for the edited timestamp)
- - Have no idea
+ - Automatically delete from database if message is removed on Discord
 
  ## If any problem comes up or something please open an issue on github
 
