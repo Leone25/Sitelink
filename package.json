@@ -1,6 +1,6 @@
 {
-  "name": "",
-  "version": "",
+  "name": "SiteLink",
+  "version": "0.0.1",
   "dependencies": {
     "discord.js": "^11.5.1",
     "mysql": "^2.17.1",

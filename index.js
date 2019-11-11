@@ -41,16 +41,32 @@ client.on('message', message => {
 		password : serverData.dbPassword,
 		database : serverData.db
 	});
-	
-	if (serverData.userNameSetting == 0) {
-		var author = message.author.id;
-	} else if (serverData.userNameSetting == 1) {
-		var author = message.author.username;
-	} else {
-		var author = message.author.tag;
+
+	var mentions = [];
+	message.mentions.users.forEach(user => {
+		mentions.push({"userId": user.id, "username": user.username, "discriminator": user.discriminator});
+	});
+	var messageContent = message.content;
+	for (mention of mentions) {
+		if(messageContent.includes(mention.userId)) {
+			if (serverData.mentionsMode == 0) {
+				var author = message.author.id;
+				messageContent = messageContent.replace(new RegExp("<@"+mention.userId+">", 'g'), "@"+mention.userId);
+				messageContent = messageContent.replace(new RegExp("<@!"+mention.userId+">", 'g'), "@"+mention.userId);
+			} else if (serverData.mentionsMode == 1) {
+				var author = message.author.username;
+				messageContent = messageContent.replace(new RegExp("<@"+mention.userId+">", 'g'), "@"+mention.username);
+				messageContent = messageContent.replace(new RegExp("<@!"+mention.userId+">", 'g'), "@"+mention.username);
+			} else {
+				var author = message.author.tag;
+				messageContent = messageContent.replace(new RegExp("<@"+mention.userId+">", 'g'), "@"+mention.username+"#"+mention.discriminator);
+				messageContent = messageContent.replace(new RegExp("<@!"+mention.userId+">", 'g'), "@"+mention.username+"#"+mention.discriminator);
+			}
+			
+		}
 	}
 
-	var post = {message:message.content, id:message.id, time:message.createdTimestamp, user:author, links:JSON.stringify(l), images:JSON.stringify(i)};
+	var post = {message:messageContent, id:message.id, time:message.createdTimestamp, user:author, links:JSON.stringify(l), images:JSON.stringify(i)};
 	var sql = 'INSERT INTO '+serverData.dbTable+' SET ?';
 	connection.connect();
 
