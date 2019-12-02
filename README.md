@@ -8,6 +8,7 @@ The purpose of this bot is to dump the messages sent in a chat channel of discor
  - Auto extraction of links and attachments that are passed as json elements to the database
  - Include time stamp and id of the message
  - Able to choose if to send the id, username or tag of the author of the message according to what's needed
+ - Able to dump messages that has been send when the bot was ofline with dedicated `!dump` command (prefix can be changed in the config file)
 
  ## How to set up
   1. First make shure that you have the latest version of [NodeJS](https://nodejs.org/en/) and [MySQL](https://www.mysql.com/) installed.
@@ -17,6 +18,7 @@ The purpose of this bot is to dump the messages sent in a chat channel of discor
   |Setting|Description|
   |--|--|
   |`token`|Discord API bot token|
+  |`prefix`|The prefix that will be used to trigger commands|
   |`servers`|Arrays of configured servers|
   |`servers.channel`|ID of Discord channel to listen to|
   |`servers.mentionsMode`| Conversion settings for user mentions in Discord messages. 0 will set as the user ID, e.g. `@182925154211332097`. 1 will set as just the username, e.g. `@Owen`. Anything else will set as the username + discriminator, e.g. `@Owen#1111`|
@@ -44,7 +46,6 @@ The purpose of this bot is to dump the messages sent in a chat channel of discor
   8. Congratulation, your bot is up and running!
 
 ## To do stuff
- - Make the bot automaticly send message that hasn't been send to the db on boot
  - Make the bot update data in the database if someone edits a message( and probably add a parameter on the db for the edited timestamp)
  - Automatically delete from database if message is removed on Discord
 
