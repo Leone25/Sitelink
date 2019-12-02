@@ -1,5 +1,6 @@
 {
 	"token": "DISCORD_TOKEN",
+	"prefix": "!",
 	"servers": [
 		{
 			"channel": "DISCORD_CHANNEL",
