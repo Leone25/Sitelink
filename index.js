@@ -58,7 +58,7 @@ client.on('message', message => {
 					});
 					
 					if (found==null) {
-						messages.push(message);
+						messages.push(messageNow);
 					}
 				});
 				sendLoop(messages, serverData, 1000);
