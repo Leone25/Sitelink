@@ -1,6 +1,7 @@
 {
 	"token": "DISCORD_TOKEN",
 	"prefix": "!",
+	"playing": "Linking.. ",
 	"servers": [
 		{
 			"channel": "DISCORD_CHANNEL",

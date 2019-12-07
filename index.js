@@ -6,6 +6,9 @@ var mysql      = require('mysql');
 var urlRegex = /^(ftp|http|https):\/\/[^ "]+$/;
 
 client.on('ready', () => {
+	if (config.playing !== "") {
+		client.user.setPresence({ status: 'online', game: { name: config.playing } });
+	}
 	console.log(`Logged in as ${client.user.tag}!`);
 	console.log(`To send missing messages run ${config.prefix}dump`);	
 });
