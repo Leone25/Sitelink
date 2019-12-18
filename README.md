@@ -48,6 +48,8 @@ The purpose of this bot is to dump the messages sent in a chat channel of discor
 ## To do stuff
  - Make the bot update data in the database if someone edits a message( and probably add a parameter on the db for the edited timestamp)
  - Automatically delete from database if message is removed on Discord
+ - Add parsing of mark down
+ - Add parsing of emojis
 
  ## If any problem comes up or something please open an issue on github
 
