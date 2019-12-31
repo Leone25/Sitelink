@@ -10,7 +10,7 @@ client.on('ready', () => {
 		client.user.setPresence({ status: 'online', game: { name: config.playing } });
 	}
 	console.log(`Logged in as ${client.user.tag}!`);
-	console.log(`To send missing messages run ${config.prefix}dump`);	
+	console.log(`To send missing messages run ${config.prefix}dump [quntity(default and limited to 99)]`);	
 });
 
 client.on('message', message => {
@@ -28,12 +28,20 @@ client.on('message', message => {
 	if (message.content.startsWith(`${config.prefix}dump`)) {
 		console.log('Warning, dump in progress! May cause slowdows.');
 		
+		number = message.content.slice(6);
+		
+		if (number=='') number = 99;
+		
+		console.log(number);
+		
 		message.delete(2);
+		
+		
 		
 		var channel = message.channel;
 		
 		async function run() {
-			var fetched = await channel.fetchMessages({limit: 99});
+			var fetched = await channel.fetchMessages({limit: number});
 			//console.log(fetched);
 			
 			var connection = mysql.createConnection({
@@ -43,27 +51,40 @@ client.on('message', message => {
 				database : serverData.db
 			});
 			
-			var sql = 'SELECT * FROM `messages`';
+			var sql = 'SELECT * FROM `'+serverData.dbTable+'`';
 			connection.connect();
-
+			
 			connection.query(sql, function (error, results, fields) {
 				if (error) throw error;
 				console.log('Data recived from db. Result: ', results);
 				var messages = [];
 				fetched.forEach(messageNow => {
 					
-					var found = null;
+					var found = false;
+					var edited = false;
 					
 					results.forEach(function (msg){
-						if (messageNow.id == msg.Id || messageNow.id == message.id) {
-							found = 'yep';
+						if (messageNow.id == msg.id || messageNow.id == message.id ) {
+							found = true;
+							//console.log('new');
+						}
+						
+						//console.log('message:' + ((messageNow.editedTimestamp == null) ? "" : messageNow.editedTimestamp) + ' db: ' + JSON.stringify(msg));
+						
+						if (found != null && ((messageNow.editedTimestamp == null) ? "" : messageNow.editedTimestamp) != msg.timeEdit) {
+							edited = true;
+							//console.log('oh nvm edited');
 						}
 					});
 					
-					if (found==null) {
-						messages.push(messageNow);
+					if (found==true && edited==true) {
+						messages.push({"message":messageNow, "action":1});
+					} else if (found==false) {
+						messages.push({"message":messageNow, "action":0});
 					}
+					
 				});
+				//console.log(messages);
 				sendLoop(messages, serverData, 1000);
 			});
 
@@ -77,6 +98,48 @@ client.on('message', message => {
 
 });
 
+client.on('messageUpdate', (messageOld, messageNew) => {
+	
+	if (messageNew.author.bot==true) return;
+	
+	var serverData = undefined;
+
+	config.servers.forEach(function(server) {
+		if (messageNew.channel.id==server.channel) serverData = server;
+	});
+
+	if (serverData==undefined) return;
+	
+	var channel = messageNew.channel;
+		
+	var connection = mysql.createConnection({
+		host     : serverData.dbHost,
+		user     : serverData.dbUser,
+		password : serverData.dbPassword,
+		database : serverData.db
+	});
+	
+	var sql = 'SELECT * FROM `'+serverData.dbTable+'`';
+	
+	connection.connect();
+
+	connection.query(sql, function (error, results, fields) {
+		if (error) throw error;
+		//console.log('Data recived from db. Result: ', results);
+		var messages = [];
+		results.forEach(messageNow => {
+			if (messageNow.id == messageNew.id) {
+				messages.push({"message":messageNew, "action":1});
+			}
+		});
+		sendLoop(messages, serverData, 1000);
+	});
+
+	connection.end();
+	
+});
+
+
 client.login(config.token);
 
 function sendLoop(messages, serverData, delay) {
@@ -84,14 +147,86 @@ function sendLoop(messages, serverData, delay) {
 	if (messages.length == 0) {
 		return;
 	}
-	
-	sendToDB(messages[0], serverData);
+	if (messages[0].action == 0) {
+		sendToDB(messages[0].message, serverData);
+	} else if (messages[0].action == 1) {
+		updateDB(messages[0].message, serverData);
+	}
 	
 	messages.shift();
 	
 	setTimeout(sendLoop, delay, messages, serverData, delay);
 	
 }
+
+function updateDB(message, serverData) {
+	
+	var connection = mysql.createConnection({
+		host     : serverData.dbHost,
+		user     : serverData.dbUser,
+		password : serverData.dbPassword,
+		database : serverData.db
+	});
+	
+	var l = [];
+
+	var msgCopy = message.content;
+	
+	
+
+	msgCopy.replace(urlRegex, function(url) {
+        l.push(url);
+    });
+
+	var i = [];
+
+	message.attachments.forEach(attachment => {
+		i.push(attachment.url);
+	});
+
+	
+
+	var mentions = [];
+	message.mentions.users.forEach(user => {
+		mentions.push({"userId": user.id, "username": user.username, "discriminator": user.discriminator});
+	});
+	var messageContent = message.content;
+	for (mention of mentions) {
+		if(messageContent.includes(mention.userId)) {
+			if (serverData.mentionsMode == 0) {
+				messageContent = messageContent.replace(new RegExp("<@"+mention.userId+">", 'g'), "@"+mention.userId);
+				messageContent = messageContent.replace(new RegExp("<@!"+mention.userId+">", 'g'), "@"+mention.userId);
+			} else if (serverData.mentionsMode == 1) {
+				messageContent = messageContent.replace(new RegExp("<@"+mention.userId+">", 'g'), "@"+mention.username);
+				messageContent = messageContent.replace(new RegExp("<@!"+mention.userId+">", 'g'), "@"+mention.username);
+			} else {
+				messageContent = messageContent.replace(new RegExp("<@"+mention.userId+">", 'g'), "@"+mention.username+"#"+mention.discriminator);
+				messageContent = messageContent.replace(new RegExp("<@!"+mention.userId+">", 'g'), "@"+mention.username+"#"+mention.discriminator);
+			}
+			
+		}
+	}
+
+	if (serverData.authorMode == 0) {
+		var author = message.author.id;
+	} else if (serverData.authorMode == 1) {
+		var author = message.author.username;
+	} else {
+		var author = message.author.tag;
+	}
+
+	var post = {message:messageContent, id:message.id, time:message.createdTimestamp, timeEdit:message.editedTimestamp, user:author, links:JSON.stringify(l), images:JSON.stringify(i)};
+	var sql = 'UPDATE '+serverData.dbTable+' SET ? WHERE id='+message.id;
+	connection.connect();
+
+	connection.query(sql, post, function (error, results, fields) {
+		if (error) throw error;
+		console.log('Data updated in db. Result: ', results);
+	});
+
+	connection.end();
+}
+
 
 function sendToDB(message, serverData) {
 	
@@ -147,7 +282,7 @@ function sendToDB(message, serverData) {
 		var author = message.author.tag;
 	}
 
-	var post = {message:messageContent, id:message.id, time:message.createdTimestamp, user:author, links:JSON.stringify(l), images:JSON.stringify(i)};
+	var post = {message:messageContent, id:message.id, time:message.createdTimestamp, timeEdit:((message.editedTimestamp == null) ? "" : message.editedTimestamp), user:author, links:JSON.stringify(l), images:JSON.stringify(i)};
 	var sql = 'INSERT INTO '+serverData.dbTable+' SET ?';
 	connection.connect();
 
