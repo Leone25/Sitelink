@@ -8,7 +8,8 @@ The purpose of this bot is to dump the messages sent in a chat channel of discor
  - Auto extraction of links and attachments that are passed as json elements to the database
  - Include time stamp and id of the message
  - Able to choose if to send the id, username or tag of the author of the message according to what's needed
- - Able to dump messages that has been send when the bot was ofline with dedicated `!dump` command (prefix can be changed in the config file)
+ - Able to dump messages that has been send when the bot was ofline with dedicated `!dump [arg]` command (prefix can be changed in the config file), and an argument can be passed to limit the number of messages checked (limited and by default 99)
+ - Update data in the database if someone edits a message with dedicated value in the database
 
  ## How to set up
   1. First make shure that you have the latest version of [NodeJS](https://nodejs.org/en/) and [MySQL](https://www.mysql.com/) installed.
@@ -37,6 +38,7 @@ The purpose of this bot is to dump the messages sent in a chat channel of discor
   `message` longtext NOT NULL,
   `id` text NOT NULL,
   `time` varchar(25) NOT NULL,
+  `timeEdit` varchar(25) NOT NULL,
   `user` text NOT NULL,
   `links` text NOT NULL,
   `images` text NOT NULL
@@ -46,7 +48,6 @@ The purpose of this bot is to dump the messages sent in a chat channel of discor
   8. Congratulation, your bot is up and running!
 
 ## To do stuff
- - Make the bot update data in the database if someone edits a message( and probably add a parameter on the db for the edited timestamp)
  - Automatically delete from database if message is removed on Discord
  - Add parsing of mark down
  - Add parsing of emojis
