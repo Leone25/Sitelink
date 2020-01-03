@@ -14,11 +14,12 @@ The purpose of this bot is to dump the messages sent in a chat channel of discor
  ## How to set up
   1. First make shure that you have the latest version of [NodeJS](https://nodejs.org/en/) and [MySQL](https://www.mysql.com/) installed.
   2. Run this command in a command prompt to install all the libraries required to run the code: `npm install` .
-  3. Copy the example config to `config.json` and configure as detailed below.
+  3. Create your bot on the [developer portal on the discord website](https://discordapp.com/developers).
+  4. Copy the example config to `config.json` and configure as detailed below.
 
   |Setting|Description|
   |--|--|
-  |`token`|Discord API bot token|
+  |`token`|Discord API bot token (found on the developer portal)|
   |`prefix`|The prefix that will be used to trigger commands|
   |`servers`|Arrays of configured servers|
   |`servers.channel`|ID of Discord channel to listen to|
@@ -31,8 +32,8 @@ The purpose of this bot is to dump the messages sent in a chat channel of discor
   |`servers.dbTable`|MySQL database table to store data in|
 
  
-  4. Connect your bot to your guild, guidance on [developer portal on the discord website](https://discordapp.com/developers).
-  5. Setup the MySQL database table with the following query, replacing "TABLE_NAME" as appropriate.
+  5. Connect your bot to your guild, by entering thE link `https://discordapp.com/oauth2/authorize?client_id={YOUR BOT ID}scope=bot&permissions=8`.
+  6. Setup the MySQL database table with the following query, replacing "TABLE_NAME" as appropriate. 
   ```
   CREATE TABLE `TABLE_NAME` (
   `message` longtext NOT NULL,
