@@ -215,7 +215,7 @@ function updateDB(message, serverData) {
 		var author = message.author.tag;
 	}
 
-	var post = {message:messageContent, id:message.id, time:message.createdTimestamp, timeEdit:message.editedTimestamp, user:author, links:JSON.stringify(l), images:JSON.stringify(i)};
+	var post = {message:messageContent, id:message.id, time:message.createdTimestamp, timeEdit:(message.editedTimestamp || ""), user:author, links:JSON.stringify(l), images:JSON.stringify(i)};
 	var sql = 'UPDATE '+serverData.dbTable+' SET ? WHERE id='+message.id;
 	connection.connect();
 
