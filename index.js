@@ -32,7 +32,7 @@ client.on('message', message => {
 		
 		if (number=='') number = 99;
 		
-		console.log(number);
+		//console.log(number);
 		
 		message.delete(2);
 		
@@ -56,24 +56,22 @@ client.on('message', message => {
 			
 			connection.query(sql, function (error, results, fields) {
 				if (error) throw error;
-				console.log('Data recived from db. Result: ', results);
+				//console.log('Data recived from db. Result: ', results);
 				var messages = [];
 				fetched.forEach(messageNow => {
 					
 					var found = false;
-					var edited = false;
+					var edited = true;
 					
 					results.forEach(function (msg){
 						if (messageNow.id == msg.id || messageNow.id == message.id ) {
 							found = true;
-							//console.log('new');
 						}
 						
-						//console.log('message:' + ((messageNow.editedTimestamp == null) ? "" : messageNow.editedTimestamp) + ' db: ' + JSON.stringify(msg));
+						//console.log('message:' + ((messageNow.editedTimestamp == null) ? "nope" : messageNow.editedTimestamp) + ' db: ' + msg.timeEdit);
 						
-						if (found != null && ((messageNow.editedTimestamp == null) ? "" : messageNow.editedTimestamp) != msg.timeEdit) {
-							edited = true;
-							//console.log('oh nvm edited');
+						if (found == true && (messageNow.editedTimestamp || "") == msg.timeEdit) {
+							edited = false;
 						}
 					});
 					
@@ -84,7 +82,7 @@ client.on('message', message => {
 					}
 					
 				});
-				//console.log(messages);
+				console.log(messages);
 				sendLoop(messages, serverData, 1000);
 			});
 
@@ -282,7 +280,7 @@ function sendToDB(message, serverData) {
 		var author = message.author.tag;
 	}
 
-	var post = {message:messageContent, id:message.id, time:message.createdTimestamp, timeEdit:((message.editedTimestamp == null) ? "" : message.editedTimestamp), user:author, links:JSON.stringify(l), images:JSON.stringify(i)};
+	var post = {message:messageContent, id:message.id, time:message.createdTimestamp, timeEdit:(message.editedTimestamp || ""), user:author, links:JSON.stringify(l), images:JSON.stringify(i)};
 	var sql = 'INSERT INTO '+serverData.dbTable+' SET ?';
 	connection.connect();
 
