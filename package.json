@@ -7,7 +7,7 @@
     "npm": "^6.13.4"
   },
   "scripts": {
-    "instal": "npm install"
+    "instal": "npm install",
     "build": "node index.js"
   }
 }
