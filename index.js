@@ -82,7 +82,7 @@ client.on('message', message => {
 					}
 					
 				});
-				console.log(messages);
+				//console.log(messages);
 				sendLoop(messages, serverData, 1000);
 			});
 
@@ -137,6 +137,20 @@ client.on('messageUpdate', (messageOld, messageNew) => {
 	
 });
 
+
+client.on('messageDelete', message => {
+	if (message.author.bot==true) return;
+	
+	var serverData = undefined;
+
+	config.servers.forEach(function(server) {
+		if (message.channel.id==server.channel) serverData = server;
+	});
+
+	if (serverData==undefined) return;
+	
+	console.log(message);
+});
 
 client.login(config.token);
 
