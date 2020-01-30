@@ -10,7 +10,7 @@ client.on('ready', () => {
 		client.user.setPresence({ status: 'online', game: { name: config.playing } });
 	}
 	console.log(`Logged in as ${client.user.tag}!`);
-	console.log(`To send missing messages run ${config.prefix}dump [quntity(default and limited to 99)]`);	
+	console.log(`To send missing messages run ${config.prefix}dump [quantity(default and limited to 99)]`);	
 });
 
 client.on('message', message => {
@@ -82,7 +82,7 @@ client.on('message', message => {
 					}
 					
 				});
-				console.log(messages);
+				//console.log(messages);
 				sendLoop(messages, serverData, 1000);
 			});
 
@@ -138,6 +138,21 @@ client.on('messageUpdate', (messageOld, messageNew) => {
 });
 
 
+client.on('messageDelete', message => {
+	if (message.author.bot==true) return;
+	
+	var serverData = undefined;
+
+	config.servers.forEach(function(server) {
+		if (message.channel.id==server.channel) serverData = server;
+	});
+
+	if (serverData==undefined) return;
+	
+	deleteFromDB(message, serverData);
+	
+});
+
 client.login(config.token);
 
 function sendLoop(messages, serverData, delay) {
@@ -149,6 +164,8 @@ function sendLoop(messages, serverData, delay) {
 		sendToDB(messages[0].message, serverData);
 	} else if (messages[0].action == 1) {
 		updateDB(messages[0].message, serverData);
+	} else if (messages[0].maction == 2) {
+		deleteFromDB(messages[0].message, serverData);
 	}
 	
 	messages.shift();
@@ -287,6 +304,25 @@ function sendToDB(message, serverData) {
 	connection.query(sql, post, function (error, results, fields) {
 		if (error) throw error;
 		console.log('Data sent to db. Result: ', results);
+	});
+
+	connection.end();
+}
+
+function deleteFromDB(message, serverData) {
+	var connection = mysql.createConnection({
+		host     : serverData.dbHost,
+		user     : serverData.dbUser,
+		password : serverData.dbPassword,
+		database : serverData.db
+	});
+	
+	var sql = 'DELETE FROM '+serverData.dbTable+' WHERE id='+message.id;
+	connection.connect();
+
+	connection.query(sql, function (error, results, fields) {
+		if (error) throw error;
+		console.log('Data deleted in db. Result: ', results);
 	});
 
 	connection.end();
