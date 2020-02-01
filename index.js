@@ -83,6 +83,28 @@ client.on('message', message => {
 					
 				});
 				//console.log(messages);
+				
+				results.forEach(function (msg){
+					
+					var id = msg.id;
+					var found = false;
+					
+					fetched.forEach(messageNow => {
+						
+						if (id == messageNow.id) {
+							found = true;
+						}
+						
+					}
+					
+					if (found == false) {
+						
+						messages.push({"message":msg, "action":2});
+						
+					}
+					
+				}
+				
 				sendLoop(messages, serverData, 1000);
 			});
 
