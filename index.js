@@ -25,6 +25,8 @@ client.on('message', message => {
 
 	if (serverData==undefined) return;
 	
+	console.log(message.content);
+	
 	if (message.content.startsWith(`${config.prefix}dump`)) {
 		console.log('Warning, dump in progress! May cause slowdows.');
 		
@@ -95,7 +97,7 @@ client.on('message', message => {
 							found = true;
 						}
 						
-					}
+					});
 					
 					if (found == false) {
 						
@@ -103,7 +105,7 @@ client.on('message', message => {
 						
 					}
 					
-				}
+				});
 				
 				sendLoop(messages, serverData, 1000);
 			});
