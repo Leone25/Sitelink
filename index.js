@@ -2,6 +2,7 @@ const Discord = require('discord.js');
 const client = new Discord.Client();
 const config = require('./config.json');
 var mysql      = require('mysql');
+var emoji = require('node-emoji');
 
 var urlRegex = /^(ftp|http|https):\/\/[^ "]+$/;
 
@@ -254,7 +255,7 @@ function updateDB(message, serverData) {
 		var author = message.author.tag;
 	}
 
-	var post = {message:messageContent, id:message.id, time:message.createdTimestamp, timeEdit:(message.editedTimestamp || ""), user:author, links:JSON.stringify(l), images:JSON.stringify(i)};
+	var post = {message:emoji.unemojify(messageContent), id:message.id, time:message.createdTimestamp, timeEdit:(message.editedTimestamp || ""), user:author, links:JSON.stringify(l), images:JSON.stringify(i)};
 	var sql = 'UPDATE '+serverData.dbTable+' SET ? WHERE id='+message.id;
 	connection.connect();
 
@@ -321,7 +322,7 @@ function sendToDB(message, serverData) {
 		var author = message.author.tag;
 	}
 
-	var post = {message:messageContent, id:message.id, time:message.createdTimestamp, timeEdit:(message.editedTimestamp || ""), user:author, links:JSON.stringify(l), images:JSON.stringify(i)};
+	var post = {message:emoji.unemojify(messageContent), id:message.id, time:message.createdTimestamp, timeEdit:(message.editedTimestamp || ""), user:author, links:JSON.stringify(l), images:JSON.stringify(i)};
 	var sql = 'INSERT INTO '+serverData.dbTable+' SET ?';
 	connection.connect();
 
