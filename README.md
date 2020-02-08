@@ -10,6 +10,7 @@ The purpose of this bot is to dump the messages sent in a chat channel of discor
  - Able to choose if to send the id, username or tag of the author of the message according to what's needed
  - Able to dump messages that has been send when the bot was ofline with dedicated `!dump [arg]` command (prefix can be changed in the config file), and an argument can be passed to limit the number of messages checked (limited and by default 99)
  - Update data in the database if someone edits a message with dedicated value in the database
+ - Emojis are automaticaly converted from unicode to discord mark down(AKA 😂 --> `:joy:`)
 
  ## How to set up
   1. First make shure that you have the latest version of [NodeJS](https://nodejs.org/en/) and [MySQL](https://www.mysql.com/) installed.
@@ -51,7 +52,6 @@ The purpose of this bot is to dump the messages sent in a chat channel of discor
 ## To do stuff
  - Automatically delete from database if message is removed on Discord
  - Add parsing of mark down
- - Add parsing of emojis
 
  ## If any problem comes up or something please open an issue on github
 
