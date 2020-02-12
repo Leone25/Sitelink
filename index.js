@@ -26,7 +26,7 @@ client.on('message', message => {
 
 	if (serverData==undefined) return;
 	
-	console.log(message.mentions.roles);
+	//console.log(message.mentions.roles);
 	
 	if (message.content.startsWith(`${serverData.prefix||config.prefix}ping`)) {
 		message.channel.send('Pong! :ping_pong:');
@@ -310,9 +310,15 @@ function prepareMessage(message, serverData) {
 			if (serverData.channelMentionsMode == 0) {
 				messageContent = messageContent.replace(new RegExp("<#"+mention.channelId+">", 'g'), "#"+mention.channelId);
 				messageContent = messageContent.replace(new RegExp("<#!"+mention.channelId+">", 'g'), "#"+mention.channelId);
-			} else {
+			} else if (serverData.channelMentionsMode == 1) {
 				messageContent = messageContent.replace(new RegExp("<#"+mention.channelId+">", 'g'), "#"+mention.name);
 				messageContent = messageContent.replace(new RegExp("<#!"+mention.channelId+">", 'g'), "#"+mention.name);
+			} else if (serverData.channelMentionsMode == 2) {
+				messageContent = messageContent.replace(new RegExp("<#"+mention.channelId+">", 'g'), "#"+mention.channelId+"#");
+				messageContent = messageContent.replace(new RegExp("<#!"+mention.channelId+">", 'g'), "#"+mention.channelId+"#");
+			} else {
+				messageContent = messageContent.replace(new RegExp("<#"+mention.channelId+">", 'g'), "#"+mention.name+"#");
+				messageContent = messageContent.replace(new RegExp("<#!"+mention.channelId+">", 'g'), "#"+mention.name+"#");
 			}
 		}
 	}
