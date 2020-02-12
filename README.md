@@ -51,7 +51,7 @@ The purpose of this bot is to dump the messages sent in a chat channel of discor
 
 ## To do stuff
  - Automatically delete from database if message is removed on Discord
- - Add code example of usage
+ - Add example code of usage
 
  ## If any problem comes up or something please open an issue on github
 
