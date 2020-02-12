@@ -10,8 +10,8 @@ client.on('ready', () => {
 	if (config.playing !== "") {
 		client.user.setPresence({ status: 'online', game: { name: config.playing } });
 	}
-	console.log(`Logged in as ${client.user.tag}!`);
-	console.log(`To send missing messages run ${config.prefix}dump [quantity(default and limited to 99)]`);	
+	console.log(getTimestamp(), `Logged in as ${client.user.tag}!`);
+	console.log(getTimestamp(), `To send missing messages run ${config.prefix}dump [quantity(default and limited to 99)]`);	
 });
 
 client.on('message', message => {
@@ -29,7 +29,7 @@ client.on('message', message => {
 	console.log(message.content);
 	
 	if (message.content.startsWith(`${config.prefix}dump`)) {
-		console.log('Warning, dump in progress! May cause slowdows.');
+		console.log(getTimestamp(), 'Warning, dump in progress! May cause slowdows.');
 		
 		number = message.content.slice(6);
 		
@@ -162,7 +162,6 @@ client.on('messageUpdate', (messageOld, messageNew) => {
 	
 });
 
-
 client.on('messageDelete', message => {
 	if (message.author.bot==true) return;
 	
@@ -261,12 +260,11 @@ function updateDB(message, serverData) {
 
 	connection.query(sql, post, function (error, results, fields) {
 		if (error) throw error;
-		console.log('Data updated in db. Result: ', results);
+		console.log(getTimestamp(), 'Data updated in db. Result: ', results);
 	});
 
 	connection.end();
 }
-
 
 function sendToDB(message, serverData) {
 	
@@ -328,7 +326,7 @@ function sendToDB(message, serverData) {
 
 	connection.query(sql, post, function (error, results, fields) {
 		if (error) throw error;
-		console.log('Data sent to db. Result: ', results);
+		console.log(getTimestamp(), 'Data sent to db. Result: ', results);
 	});
 
 	connection.end();
@@ -347,8 +345,14 @@ function deleteFromDB(message, serverData) {
 
 	connection.query(sql, function (error, results, fields) {
 		if (error) throw error;
-		console.log('Data deleted in db. Result: ', results);
+		console.log(getTimestamp(), 'Data deleted in db. Result: ', results);
 	});
 
 	connection.end();
+}
+
+function getTimestamp() {
+	var d = new Date();
+	
+	return "["+d.getDate()+"/"+(d.getMonth()+1)+"/"+d.getFullYear()+" - "+d.getHours()+":"+d.getMinutes()+":"+d.getSeconds()+"."+d.getMilliseconds()+"]";
 }
