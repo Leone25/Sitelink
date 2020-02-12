@@ -26,9 +26,17 @@ client.on('message', message => {
 
 	if (serverData==undefined) return;
 	
-	console.log(message.content);
+	console.log(message.mentions.roles);
 	
-	if (message.content.startsWith(`${config.prefix}dump`)) {
+	if (message.content.startsWith(`${serverData.prefix||config.prefix}ping`)) {
+		message.channel.send('Pong! :ping_pong:');
+		return;
+	} else if (message.content.startsWith(`${serverData.prefix||config.prefix}dump`) && serverData.allowDump == true) {
+		
+		if (serverData.allowDump == true) {
+			return;
+		}
+		
 		console.log(getTimestamp(), 'Warning, dump in progress! May cause slowdows.');
 		
 		number = message.content.slice(6);
@@ -38,8 +46,6 @@ client.on('message', message => {
 		//console.log(number);
 		
 		message.delete(2);
-		
-		
 		
 		var channel = message.channel;
 		
@@ -207,54 +213,7 @@ function updateDB(message, serverData) {
 		database : serverData.db
 	});
 	
-	var l = [];
-
-	var msgCopy = message.content;
-	
-	
-
-	msgCopy.replace(urlRegex, function(url) {
-        l.push(url);
-    });
-
-	var i = [];
-
-	message.attachments.forEach(attachment => {
-		i.push(attachment.url);
-	});
-
-	
-
-	var mentions = [];
-	message.mentions.users.forEach(user => {
-		mentions.push({"userId": user.id, "username": user.username, "discriminator": user.discriminator});
-	});
-	var messageContent = message.content;
-	for (mention of mentions) {
-		if(messageContent.includes(mention.userId)) {
-			if (serverData.mentionsMode == 0) {
-				messageContent = messageContent.replace(new RegExp("<@"+mention.userId+">", 'g'), "@"+mention.userId);
-				messageContent = messageContent.replace(new RegExp("<@!"+mention.userId+">", 'g'), "@"+mention.userId);
-			} else if (serverData.mentionsMode == 1) {
-				messageContent = messageContent.replace(new RegExp("<@"+mention.userId+">", 'g'), "@"+mention.username);
-				messageContent = messageContent.replace(new RegExp("<@!"+mention.userId+">", 'g'), "@"+mention.username);
-			} else {
-				messageContent = messageContent.replace(new RegExp("<@"+mention.userId+">", 'g'), "@"+mention.username+"#"+mention.discriminator);
-				messageContent = messageContent.replace(new RegExp("<@!"+mention.userId+">", 'g'), "@"+mention.username+"#"+mention.discriminator);
-			}
-			
-		}
-	}
-
-	if (serverData.authorMode == 0) {
-		var author = message.author.id;
-	} else if (serverData.authorMode == 1) {
-		var author = message.author.username;
-	} else {
-		var author = message.author.tag;
-	}
-
-	var post = {message:emoji.unemojify(messageContent), id:message.id, time:message.createdTimestamp, timeEdit:(message.editedTimestamp || ""), user:author, links:JSON.stringify(l), images:JSON.stringify(i)};
+	var post = prepareMessage(message, serverData);
 	var sql = 'UPDATE '+serverData.dbTable+' SET ? WHERE id='+message.id;
 	connection.connect();
 
@@ -274,53 +233,8 @@ function sendToDB(message, serverData) {
 		password : serverData.dbPassword,
 		database : serverData.db
 	});
-	
-	var l = [];
 
-	var msgCopy = message.content;
-
-	msgCopy.replace(urlRegex, function(url) {
-        l.push(url);
-    });
-
-	var i = [];
-
-	message.attachments.forEach(attachment => {
-		i.push(attachment.url);
-	});
-
-	
-
-	var mentions = [];
-	message.mentions.users.forEach(user => {
-		mentions.push({"userId": user.id, "username": user.username, "discriminator": user.discriminator});
-	});
-	var messageContent = message.content;
-	for (mention of mentions) {
-		if(messageContent.includes(mention.userId)) {
-			if (serverData.mentionsMode == 0) {
-				messageContent = messageContent.replace(new RegExp("<@"+mention.userId+">", 'g'), "@"+mention.userId);
-				messageContent = messageContent.replace(new RegExp("<@!"+mention.userId+">", 'g'), "@"+mention.userId);
-			} else if (serverData.mentionsMode == 1) {
-				messageContent = messageContent.replace(new RegExp("<@"+mention.userId+">", 'g'), "@"+mention.username);
-				messageContent = messageContent.replace(new RegExp("<@!"+mention.userId+">", 'g'), "@"+mention.username);
-			} else {
-				messageContent = messageContent.replace(new RegExp("<@"+mention.userId+">", 'g'), "@"+mention.username+"#"+mention.discriminator);
-				messageContent = messageContent.replace(new RegExp("<@!"+mention.userId+">", 'g'), "@"+mention.username+"#"+mention.discriminator);
-			}
-			
-		}
-	}
-
-	if (serverData.authorMode == 0) {
-		var author = message.author.id;
-	} else if (serverData.authorMode == 1) {
-		var author = message.author.username;
-	} else {
-		var author = message.author.tag;
-	}
-
-	var post = {message:emoji.unemojify(messageContent), id:message.id, time:message.createdTimestamp, timeEdit:(message.editedTimestamp || ""), user:author, links:JSON.stringify(l), images:JSON.stringify(i)};
+	var post = prepareMessage(message, serverData);
 	var sql = 'INSERT INTO '+serverData.dbTable+' SET ?';
 	connection.connect();
 
@@ -349,6 +263,88 @@ function deleteFromDB(message, serverData) {
 	});
 
 	connection.end();
+}
+
+function prepareMessage(message, serverData) {
+	var l = [];
+
+	var msgCopy = message.content;
+
+	msgCopy.replace(urlRegex, function(url) {
+        l.push(url);
+    });
+
+	var i = [];
+
+	message.attachments.forEach(attachment => {
+		i.push(attachment.url);
+	});
+	
+	var mentions = [];
+	message.mentions.users.forEach(user => {
+		mentions.push({"userId": user.id, "username": user.username, "discriminator": user.discriminator});
+	});
+	var messageContent = message.content;
+	for (mention of mentions) {
+		if(messageContent.includes(mention.userId)) {
+			if (serverData.userMentionsMode == 0) {
+				messageContent = messageContent.replace(new RegExp("<@"+mention.userId+">", 'g'), "@"+mention.userId);
+				messageContent = messageContent.replace(new RegExp("<@!"+mention.userId+">", 'g'), "@"+mention.userId);
+			} else if (serverData.userMentionsMode == 1) {
+				messageContent = messageContent.replace(new RegExp("<@"+mention.userId+">", 'g'), "@"+mention.username);
+				messageContent = messageContent.replace(new RegExp("<@!"+mention.userId+">", 'g'), "@"+mention.username);
+			} else {
+				messageContent = messageContent.replace(new RegExp("<@"+mention.userId+">", 'g'), "@"+mention.username+"#"+mention.discriminator);
+				messageContent = messageContent.replace(new RegExp("<@!"+mention.userId+">", 'g'), "@"+mention.username+"#"+mention.discriminator);
+			}
+			
+		}
+	}
+	
+	var mentions = [];
+	message.mentions.channels.forEach(channel => {
+		mentions.push({"channelId": channel.id, "name": channel.name});
+	});
+	for (mention of mentions) {
+		if(messageContent.includes(mention.channelId)) {
+			if (serverData.channelMentionsMode == 0) {
+				messageContent = messageContent.replace(new RegExp("<#"+mention.channelId+">", 'g'), "#"+mention.channelId);
+				messageContent = messageContent.replace(new RegExp("<#!"+mention.channelId+">", 'g'), "#"+mention.channelId);
+			} else {
+				messageContent = messageContent.replace(new RegExp("<#"+mention.channelId+">", 'g'), "#"+mention.name);
+				messageContent = messageContent.replace(new RegExp("<#!"+mention.channelId+">", 'g'), "#"+mention.name);
+			}
+		}
+	}
+	
+	var mentions = [];
+	message.mentions.roles.forEach(role => {
+		mentions.push({"roleId": role.id, "name": role.name, "color": role.color.toString(16)});
+	});
+	for (mention of mentions) {
+		if(messageContent.includes(mention.roleId)) {
+			if (serverData.roleMentionsMode == 0) {
+				messageContent = messageContent.replace(new RegExp("<@&"+mention.roleId+">", 'g'), "&"+mention.roleId);
+				messageContent = messageContent.replace(new RegExp("<@&!"+mention.roleId+">", 'g'), "&"+mention.roleId);
+			} else if (serverData.roleMentionsMode == 1) {
+				messageContent = messageContent.replace(new RegExp("<@&"+mention.roleId+">", 'g'), "&"+mention.name);
+				messageContent = messageContent.replace(new RegExp("<@&!"+mention.roleId+">", 'g'), "&"+mention.name);
+			} else {
+				messageContent = messageContent.replace(new RegExp("<@&"+mention.roleId+">", 'g'), "&"+mention.name+"#"+mention.color);
+				messageContent = messageContent.replace(new RegExp("<@&!"+mention.roleId+">", 'g'), "&"+mention.name+"#"+mention.color);
+			}
+		}
+	}
+
+	if (serverData.authorMode == 0) {
+		var author = message.author.id;
+	} else if (serverData.authorMode == 1) {
+		var author = message.author.username;
+	} else {
+		var author = message.author.tag;
+	}
+	
+	return {message:emoji.unemojify(messageContent), id:message.id, time:message.createdTimestamp, timeEdit:(message.editedTimestamp || ""), user:author, links:JSON.stringify(l), images:JSON.stringify(i)};
 }
 
 function getTimestamp() {
