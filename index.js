@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-const client = new Discord.Client();
+const client = new Discord.Client({ partials: ['MESSAGE', 'CHANNEL', 'REACTION'] });
 const config = require('./config.json');
 var mysql      = require('mysql');
 var emoji = require('node-emoji');
@@ -127,7 +127,27 @@ client.on('message', message => {
 
 });
 
-client.on('messageUpdate', (messageOld, messageNew) => {
+client.on('messageUpdate', async (messageOld, messageNew) => {
+	
+	console.log("woop");
+	
+	if (messageOld.partial) {
+		// If the message was removed the fetching might result in an API error, which we need to handle
+		try {
+			await messageOld.fetch();
+		} catch (error) {
+			console.log(getTimestamp(), 'Something went wrong when fetching the message: ', error);
+		}
+	}
+	
+	if (messageNew.partial) {
+		// If the message was removed the fetching might result in an API error, which we need to handle
+		try {
+			await messageNew.fetch();
+		} catch (error) {
+			console.log(getTimestamp(), 'Something went wrong when fetching the message: ', error);
+		}
+	}
 	
 	if (messageNew.author.bot==true) return;
 	
