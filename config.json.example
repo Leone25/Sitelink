@@ -1,12 +1,15 @@
 {
 	"token": "DISCORD_TOKEN",
 	"prefix": "!",
-	"playing": "Linking.. ",
+	"playing": "Linking...",
 	"servers": [
 		{
 			"channel": "DISCORD_CHANNEL",
-			"mentionsMode": "2",
+			"userMentionsMode": "2",
+			"channelMentionsMode":"1",
+			"roleMentionsMode": "2",
 			"authorMode": "2",
+			"allowDump": true,
 			"dbHost": "MYSQL_HOST",
 			"dbUser": "MYSQL_USER",
 			"dbPassword": "MYSQL_PASSWORD",
