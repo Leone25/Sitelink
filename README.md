@@ -8,7 +8,11 @@ The purpose of this bot is to dump the messages sent in a chat channel of discor
  - Auto extraction of links and attachments that are passed as json elements to the database
  - Include time stamp and id of the message
  - Able to choose if to send the id, username or tag of the author of the message according to what's needed
+ - Able to choose if to send the id, username or tag of the users mentioned in the message according to what's needed
+ - Able to choose if to send the id or name of the channel mentioned in the message according to what's needed
+ - Able to choose if to send the id, name or name with color of the roles mentioned in the message according to what's needed
  - Able to dump messages that has been send when the bot was ofline with dedicated `!dump [arg]` command (prefix can be changed in the config file), and an argument can be passed to limit the number of messages checked (limited and by default 99)
+ - Able to disable dump command on each channel individually
  - Update data in the database if someone edits a message with dedicated value in the database
  - Emojis are automaticaly converted from unicode to discord mark down(AKA 😂 --> `:joy:`)
 
@@ -24,8 +28,11 @@ The purpose of this bot is to dump the messages sent in a chat channel of discor
   |`prefix`|The prefix that will be used to trigger commands|
   |`servers`|Arrays of configured servers|
   |`servers.channel`|ID of Discord channel to listen to|
-  |`servers.mentionsMode`| Conversion settings for user mentions in Discord messages. 0 will set as the user ID, e.g. `@182925154211332097`. 1 will set as just the username, e.g. `@Owen`. Anything else will set as the username + discriminator, e.g. `@Owen#1111`|
+  |`servers.userMentionsMode`| Conversion settings for user mentions in Discord messages. 0 will set as the user ID, e.g. `@182925154211332097`. 1 will set as just the username, e.g. `@Owen`. Anything else will set as the username + discriminator, e.g. `@Owen#1111`|
+  |`servers.channelMentionsMode`| Conversion settings for channel mentions in Discord messages. 0 will set as the channel ID, e.g. `#224558110868635658`. Anything else will set as the name, e.g. `#rules`|
+  |`servers.roleMentionsMode`| Conversion settings for role mentions in Discord messages. 0 will set as the role ID, e.g. `&677081843086000128`. 1 will set as just the name of the role, e.g. `&foo`. Anything else will set as the name + color in hex, e.g. `&foo#ffffff`|
   |`servers.authorMode`|Same settings as `mentionsMode` but for message authors|
+  |`servers.prefix`(optional)|This sets a custom prefix for the channel for the dump command and overwrites the `prefix` on for that particular channel|
   |`servers.dbHost`|MySQL database host|
   |`servers.dbUser`|MySQL database username|
   |`servers.dbPassword`|MySQL database password|
