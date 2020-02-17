@@ -15,6 +15,7 @@ The purpose of this bot is to dump the messages sent in a chat channel of discor
  - Able to disable dump command on each channel individually
  - Update data in the database if someone edits a message with dedicated value in the database
  - Emojis are automaticaly converted from unicode to discord mark down(AKA 😂 --> `:joy:`)
+ - Supports parial
 
  ## How to set up
   1. First make shure that you have the latest version of [NodeJS](https://nodejs.org/en/) and [MySQL](https://www.mysql.com/) installed.
@@ -32,6 +33,7 @@ The purpose of this bot is to dump the messages sent in a chat channel of discor
   |`servers.channelMentionsMode`| Conversion settings for channel mentions in Discord messages. 0 will set as the channel ID, e.g. `#224558110868635658`. 1 will set as the name, e.g. `#rules`. 2 will set the id in between two hastag, e.g. `#224558110868635658#`. Anything else will the channel name between two hastag, e.g. `#rules#`.|
   |`servers.roleMentionsMode`| Conversion settings for role mentions in Discord messages. 0 will set as the role ID, e.g. `&677081843086000128`. 1 will set as just the name of the role, e.g. `&foo`. Anything else will set as the name + color in hex, e.g. `&foo#ffffff`|
   |`servers.authorMode`|Same settings as `mentionsMode` but for message authors|
+  |`servers.allowDump`|Enables and disables the dump command (bolean)|
   |`servers.prefix`(optional)|This sets a custom prefix for the channel for the dump command and overwrites the `prefix` on for that particular channel|
   |`servers.dbHost`|MySQL database host|
   |`servers.dbUser`|MySQL database username|
@@ -63,9 +65,3 @@ The purpose of this bot is to dump the messages sent in a chat channel of discor
  ## If any problem comes up or something please open an issue on github
 
  Have a great life!
- 
- 
- 
- 
- 
- this is just an edit to trigger the webhook .
