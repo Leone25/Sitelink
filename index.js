@@ -16,7 +16,7 @@ client.on('ready', () => {
 
 client.on('message', message => {
 
-	if (message.author.bot==true) return;
+	
 	
 	var serverData = undefined;
 
@@ -26,7 +26,7 @@ client.on('message', message => {
 
 	if (serverData==undefined) return;
 	
-	//console.log(message.mentions.roles);
+	if (message.author.bot== true && serverData.allowBots != true) return;
 	
 	if (message.content.startsWith(`${serverData.prefix||config.prefix}ping`)) {
 		message.channel.send('Pong! :ping_pong:');
@@ -124,8 +124,6 @@ client.on('message', message => {
 });
 
 client.on('messageUpdate', async (messageOld, messageNew) => {
-	
-	console.log("woop");
 	
 	if (messageOld.partial) {
 		// If the message was removed the fetching might result in an API error, which we need to handle

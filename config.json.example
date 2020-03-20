@@ -10,6 +10,7 @@
 			"roleMentionsMode": "2",
 			"authorMode": "2",
 			"allowDump": true,
+			"allowBots": false,
 			"dbHost": "MYSQL_HOST",
 			"dbUser": "MYSQL_USER",
 			"dbPassword": "MYSQL_PASSWORD",
