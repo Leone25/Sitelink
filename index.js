@@ -33,10 +33,6 @@ client.on('message', message => {
 		return;
 	} else if (message.content.startsWith(`${serverData.prefix||config.prefix}dump`) && serverData.allowDump == true) {
 		
-		if (serverData.allowDump == true) {
-			return;
-		}
-		
 		console.log(getTimestamp(), 'Warning, dump in progress! May cause slowdows.');
 		
 		number = message.content.slice(6);
