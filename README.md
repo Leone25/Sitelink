@@ -15,6 +15,7 @@ The purpose of this bot is to dump the messages sent in a chat channel of discor
  - Able to disable dump command on each channel individually
  - Update data in the database if someone edits a message with dedicated value in the database
  - Emojis are automaticaly converted from unicode to discord mark down(AKA 😂 --> `:joy:`)
+ - Able to choose if to ignore bots
  - Supports parial
 
  ## How to set up
@@ -34,6 +35,7 @@ The purpose of this bot is to dump the messages sent in a chat channel of discor
   |`servers.roleMentionsMode`| Conversion settings for role mentions in Discord messages. 0 will set as the role ID, e.g. `&677081843086000128`. 1 will set as just the name of the role, e.g. `&foo`. Anything else will set as the name + color in hex, e.g. `&foo#ffffff`|
   |`servers.authorMode`|Same settings as `mentionsMode` but for message authors|
   |`servers.allowDump`|Enables and disables the dump command (bolean)|
+  |`servers.allowBots`|Filters bots messages if setted to false (bolean)|
   |`servers.prefix`(optional)|This sets a custom prefix for the channel for the dump command and overwrites the `prefix` on for that particular channel|
   |`servers.dbHost`|MySQL database host|
   |`servers.dbUser`|MySQL database username|
