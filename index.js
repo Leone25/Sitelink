@@ -56,21 +56,29 @@ client.on('message', message => {
 				database : serverData.db
 			});
 			
-			var sql = 'SELECT * FROM `'+serverData.dbTable+'`';
+			var sql = 'SELECT * FROM `'+serverData.dbTable+'` ORDER BY `time` DESC';
 			connection.connect();
 			
 			connection.query(sql, function (error, results, fields) {
 				if (error) throw error;
 				//console.log('Data recived from db. Result: ', results);
 				var messages = [];
+				var controlled = [];
+				
+				for (i = 0; i < number; i++) {
+					controlled[i] = false;
+				}
+				
 				fetched.forEach(messageNow => {
 					
 					var found = false;
 					var edited = true;
 					
-					results.forEach(function (msg){
+					for (j = 0; j < results.length; j++) {
+						var msg = results[j];
 						if (messageNow.id == msg.id || messageNow.id == message.id ) {
 							found = true;
+							controlled[j] = true;
 						}
 						
 						//console.log('message:' + ((messageNow.editedTimestamp == null) ? "nope" : messageNow.editedTimestamp) + ' db: ' + msg.timeEdit);
@@ -78,7 +86,7 @@ client.on('message', message => {
 						if (found == true && (messageNow.editedTimestamp || "") == msg.timeEdit) {
 							edited = false;
 						}
-					});
+					}
 					
 					if (found==true && edited==true) {
 						messages.push({"message":messageNow, "action":1});
@@ -89,26 +97,9 @@ client.on('message', message => {
 				});
 				//console.log(messages);
 				
-				results.forEach(function (msg){
-					
-					var id = msg.id;
-					var found = false;
-					
-					fetched.forEach(messageNow => {
-						
-						if (id == messageNow.id) {
-							found = true;
-						}
-						
-					});
-					
-					if (found == false) {
-						
-						messages.push({"message":msg, "action":2});
-						
-					}
-					
-				});
+				while(true) {
+					break;
+				}
 				
 				sendLoop(messages, serverData, 1000);
 			});
@@ -295,9 +286,10 @@ function prepareMessage(message, serverData) {
 	});
 	
 	var mentions = [];
-	message.mentions.users.forEach(user => {
-		mentions.push({"userId": user.id, "username": user.username, "discriminator": user.discriminator});
+	message.mentions.members.forEach((member) => {
+		mentions.push({"userId": member.user.id, "username": member.user.username, "discriminator": member.user.discriminator, "nickname": member.nickname || member.user.username});
 	});
+	
 	var messageContent = message.content;
 	for (mention of mentions) {
 		if(messageContent.includes(mention.userId)) {
@@ -307,10 +299,22 @@ function prepareMessage(message, serverData) {
 			} else if (serverData.userMentionsMode == 1) {
 				messageContent = messageContent.replace(new RegExp("<@"+mention.userId+">", 'g'), "@"+mention.username);
 				messageContent = messageContent.replace(new RegExp("<@!"+mention.userId+">", 'g'), "@"+mention.username);
-			} else {
+			} else if (serverData.userMentionsMode == 2) {
+				messageContent = messageContent.replace(new RegExp("<@"+mention.userId+">", 'g'), "@"+mention.nickname);
+				messageContent = messageContent.replace(new RegExp("<@!"+mention.userId+">", 'g'), "@"+mention.nickname);
+			} else if (serverData.userMentionsMode == 3) {
 				messageContent = messageContent.replace(new RegExp("<@"+mention.userId+">", 'g'), "@"+mention.username+"#"+mention.discriminator);
 				messageContent = messageContent.replace(new RegExp("<@!"+mention.userId+">", 'g'), "@"+mention.username+"#"+mention.discriminator);
-			}
+			} else if (serverData.userMentionsMode == 4) {
+				messageContent = messageContent.replace(new RegExp("<@"+mention.userId+">", 'g'), "@"+mention.userId+"@");
+				messageContent = messageContent.replace(new RegExp("<@!"+mention.userId+">", 'g'), "@"+mention.userId+"@");
+			} else if (serverData.userMentionsMode == 5) {
+				messageContent = messageContent.replace(new RegExp("<@"+mention.userId+">", 'g'), "@"+mention.username+"@");
+				messageContent = messageContent.replace(new RegExp("<@!"+mention.userId+">", 'g'), "@"+mention.username+"@");
+			} else {
+				messageContent = messageContent.replace(new RegExp("<@"+mention.userId+">", 'g'), "@"+mention.nickname+"@");
+				messageContent = messageContent.replace(new RegExp("<@!"+mention.userId+">", 'g'), "@"+mention.nickname+"@");
+			} 
 			
 		}
 	}
