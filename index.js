@@ -364,8 +364,10 @@ function prepareMessage(message, serverData) {
 		var author = message.author.id;
 	} else if (serverData.authorMode == 1) {
 		var author = message.author.username;
-	} else {
+	} else if (serverData.authorMode == 2) {
 		var author = message.author.tag;
+	} else {
+		var author = message.member.nickname;
 	}
 	
 	return {message:emoji.unemojify(messageContent), id:message.id, time:message.createdTimestamp, timeEdit:(message.editedTimestamp || ""), user:author, links:JSON.stringify(l), images:JSON.stringify(i)};
