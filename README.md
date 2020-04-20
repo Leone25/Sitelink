@@ -30,7 +30,7 @@ The purpose of this bot is to dump the messages sent in a chat channel of discor
   |`prefix`|The prefix that will be used to trigger commands|
   |`servers`|Arrays of configured servers|
   |`servers.channel`|ID of Discord channel to listen to|
-  |`servers.userMentionsMode`| Conversion settings for user mentions in Discord messages. 0 will set as the user ID, e.g. `@182925154211332097`. 1 will set as just the username, e.g. `@Owen`. Anything else will set as the username + discriminator, e.g. `@Owen#1111`|
+  |`servers.userMentionsMode`| Conversion settings for user mentions in Discord messages. 0 will set as the user ID, e.g. `@182925154211332097`. 1 will set as just the username, e.g. `@Owen`. 2 will set as just the in-server nickname, e.g. `@Not Owen`. 3 will set as the username + discriminator, e.g. `@Owen#1111` 4 will set as the user ID plus end marker, e.g. `@182925154211332097@`. 5 will set as just the username plus end marker, e.g. `@Owen@`. 6 will set as just the in-server nickname plus end marker e.g. `@Not Owen@`.|
   |`servers.channelMentionsMode`| Conversion settings for channel mentions in Discord messages. 0 will set as the channel ID, e.g. `#224558110868635658`. 1 will set as the name, e.g. `#rules`. 2 will set the id in between two hastag, e.g. `#224558110868635658#`. Anything else will the channel name between two hastag, e.g. `#rules#`.|
   |`servers.roleMentionsMode`| Conversion settings for role mentions in Discord messages. 0 will set as the role ID, e.g. `&677081843086000128`. 1 will set as just the name of the role, e.g. `&foo`. Anything else will set as the name + color in hex, e.g. `&foo#ffffff`|
   |`servers.authorMode`|Same settings as `mentionsMode` but for message authors|
