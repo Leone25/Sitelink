@@ -367,7 +367,7 @@ function prepareMessage(message, serverData) {
 	} else if (serverData.authorMode == 2) {
 		var author = message.author.tag;
 	} else {
-		var author = message.member.nickname;
+		var author = message.member.nickname || message.author.username;
 	}
 	
 	return {message:emoji.unemojify(messageContent), id:message.id, time:message.createdTimestamp, timeEdit:(message.editedTimestamp || ""), user:author, links:JSON.stringify(l), images:JSON.stringify(i)};
