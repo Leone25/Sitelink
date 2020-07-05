@@ -19,7 +19,7 @@ The purpose of this bot is to dump the messages sent in a chat channel of discor
  - Supports parial
 
  ## How to set up
-  1. First make shure that you have the latest version of [NodeJS](https://nodejs.org/en/) and [MySQL](https://www.mysql.com/) installed.
+  1. First make sure that you have the latest version of [NodeJS](https://nodejs.org/en/) and [MySQL](https://www.mysql.com/) installed.
   2. Run this command in a command prompt to install all the libraries required to run the code: `npm install` .
   3. Create your bot on the [developer portal on the discord website](https://discordapp.com/developers).
   4. Copy the example config to `config.json` and configure as detailed below.
