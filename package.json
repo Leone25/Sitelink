@@ -5,7 +5,7 @@
     "discord.js": "^11.5.1",
     "mysql": "^2.17.1",
     "node-emoji": "^1.10.0",
-    "npm": "^6.13.4"
+    "npm": "^6.14.6"
   },
   "scripts": {
     "instal": "npm install",
