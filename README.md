@@ -57,7 +57,7 @@ The purpose of this bot is to dump the messages sent in a chat channel of discor
   `images` text NOT NULL
 ) COLLATE 'utf8mb4_unicode_ci';
 ```
-  7. Start the bot by running ` node index.js ` or ` nodemon ` (`start.bat` on Windows)
+  7. Start the bot by running ` node index.js ` or ` nodemon `
   8. Congratulation, your bot is up and running!
 
 ## To do stuff

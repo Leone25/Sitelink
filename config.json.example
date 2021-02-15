@@ -2,6 +2,7 @@
 	"token": "DISCORD_TOKEN",
 	"prefix": "!",
 	"playing": "Linking...",
+	"godMode": [],
 	"servers": [
 		{
 			"channel": "DISCORD_CHANNEL",
@@ -11,7 +12,9 @@
 			"authorMode": "2",
 			"allowDump": true,
 			"allowBots": false,
+			"godMode": [],
 			"dbHost": "MYSQL_HOST",
+			"dbPort": "3306",
 			"dbUser": "MYSQL_USER",
 			"dbPassword": "MYSQL_PASSWORD",
 			"db": "MYSQL_DB",

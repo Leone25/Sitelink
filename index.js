@@ -51,6 +51,7 @@ client.on('message', message => {
 			
 			var connection = mysql.createConnection({
 				host     : serverData.dbHost,
+				port	 : serverData.dbPort,
 				user     : serverData.dbUser,
 				password : serverData.dbPassword,
 				database : serverData.db
@@ -148,6 +149,7 @@ client.on('messageUpdate', async (messageOld, messageNew) => {
 		
 	var connection = mysql.createConnection({
 		host     : serverData.dbHost,
+		port	 : serverData.dbPort,
 		user     : serverData.dbUser,
 		password : serverData.dbPassword,
 		database : serverData.db
@@ -190,15 +192,15 @@ client.on('messageDelete', message => {
 
 client.login(config.token);
 
-function sendLoop(messages, serverData, delay) {
+async function sendLoop(messages, serverData, delay) {
 	
 	if (messages.length == 0) {
 		return;
 	}
 	if (messages[0].action == 0) {
-		sendToDB(messages[0].message, serverData);
+		await sendToDB(messages[0].message, serverData);
 	} else if (messages[0].action == 1) {
-		updateDB(messages[0].message, serverData);
+		await updateDB(messages[0].message, serverData);
 	} else if (messages[0].maction == 2) {
 		deleteFromDB(messages[0].message, serverData);
 	}
@@ -209,16 +211,17 @@ function sendLoop(messages, serverData, delay) {
 	
 }
 
-function updateDB(message, serverData) {
+async function updateDB(message, serverData) {
 	
 	var connection = mysql.createConnection({
 		host     : serverData.dbHost,
+		port	 : serverData.dbPort,
 		user     : serverData.dbUser,
 		password : serverData.dbPassword,
 		database : serverData.db
 	});
 	
-	var post = prepareMessage(message, serverData);
+	var post = await prepareMessage(message, serverData);
 	var sql = 'UPDATE '+serverData.dbTable+' SET ? WHERE id='+message.id;
 	connection.connect();
 
@@ -230,16 +233,17 @@ function updateDB(message, serverData) {
 	connection.end();
 }
 
-function sendToDB(message, serverData) {
+async function sendToDB(message, serverData) {
 	
 	var connection = mysql.createConnection({
 		host     : serverData.dbHost,
+		port	 : serverData.dbPort,
 		user     : serverData.dbUser,
 		password : serverData.dbPassword,
 		database : serverData.db
 	});
 
-	var post = prepareMessage(message, serverData);
+	var post = await prepareMessage(message, serverData);
 	var sql = 'INSERT INTO '+serverData.dbTable+' SET ?';
 	connection.connect();
 
@@ -254,6 +258,7 @@ function sendToDB(message, serverData) {
 function deleteFromDB(message, serverData) {
 	var connection = mysql.createConnection({
 		host     : serverData.dbHost,
+		port	 : serverData.dbPort,
 		user     : serverData.dbUser,
 		password : serverData.dbPassword,
 		database : serverData.db
@@ -271,110 +276,108 @@ function deleteFromDB(message, serverData) {
 }
 
 function prepareMessage(message, serverData) {
-	var l = [];
-
-	var msgCopy = message.content;
-
-	msgCopy.replace(urlRegex, function(url) {
-        l.push(url);
-    });
-
-	var i = [];
-
-	message.attachments.forEach(attachment => {
-		i.push(attachment.url);
-	});
 	
-	var mentions = [];
-	message.mentions.members.forEach((member) => {
-		mentions.push({"userId": member.user.id, "username": member.user.username, "discriminator": member.user.discriminator, "nickname": member.nickname || member.user.username});
-	});
-	
-	var messageContent = message.content;
-	for (mention of mentions) {
-		if(messageContent.includes(mention.userId)) {
+	return new Promise(async (resolve) => {
+		var l = [];
+
+		var msgCopy = message.content;
+
+		msgCopy.replace(urlRegex, function(url) {
+			l.push(url);
+		});
+
+		var i = [];
+
+		message.attachments.forEach(attachment => {
+			i.push(attachment.url);
+		});
+		
+		let messageContent = message.content;
+
+		await asyncForEach(message.mentions.users.array(), async (user) => {
+			console.log(user);
 			if (serverData.userMentionsMode == 0) {
-				messageContent = messageContent.replace(new RegExp("<@"+mention.userId+">", 'g'), "@"+mention.userId);
-				messageContent = messageContent.replace(new RegExp("<@!"+mention.userId+">", 'g'), "@"+mention.userId);
+				messageContent = messageContent.replace(new RegExp("<@!"+user.id+">", 'g'), "@"+user.id);
 			} else if (serverData.userMentionsMode == 1) {
-				messageContent = messageContent.replace(new RegExp("<@"+mention.userId+">", 'g'), "@"+mention.username);
-				messageContent = messageContent.replace(new RegExp("<@!"+mention.userId+">", 'g'), "@"+mention.username);
+				messageContent = messageContent.replace(new RegExp("<@!"+user.id+">", 'g'), "@"+user.username);
 			} else if (serverData.userMentionsMode == 2) {
-				messageContent = messageContent.replace(new RegExp("<@"+mention.userId+">", 'g'), "@"+mention.nickname);
-				messageContent = messageContent.replace(new RegExp("<@!"+mention.userId+">", 'g'), "@"+mention.nickname);
+				let nickname = await message.guild.members.fetch(user.id).then(res => res.nickname);
+				messageContent = messageContent.replace(new RegExp("<@!"+user.id+">", 'g'), "@"+nickname);
 			} else if (serverData.userMentionsMode == 3) {
-				messageContent = messageContent.replace(new RegExp("<@"+mention.userId+">", 'g'), "@"+mention.username+"#"+mention.discriminator);
-				messageContent = messageContent.replace(new RegExp("<@!"+mention.userId+">", 'g'), "@"+mention.username+"#"+mention.discriminator);
+				messageContent = messageContent.replace(new RegExp("<@!"+user.id+">", 'g'), "@"+user.username+"#"+user.discriminator);
 			} else if (serverData.userMentionsMode == 4) {
-				messageContent = messageContent.replace(new RegExp("<@"+mention.userId+">", 'g'), "@"+mention.userId+"@");
-				messageContent = messageContent.replace(new RegExp("<@!"+mention.userId+">", 'g'), "@"+mention.userId+"@");
+				messageContent = messageContent.replace(new RegExp("<@!"+user.id+">", 'g'), "@"+user.id+"@");
 			} else if (serverData.userMentionsMode == 5) {
-				messageContent = messageContent.replace(new RegExp("<@"+mention.userId+">", 'g'), "@"+mention.username+"@");
-				messageContent = messageContent.replace(new RegExp("<@!"+mention.userId+">", 'g'), "@"+mention.username+"@");
+				messageContent = messageContent.replace(new RegExp("<@!"+user.id+">", 'g'), "@"+user.username+"@");
 			} else {
-				messageContent = messageContent.replace(new RegExp("<@"+mention.userId+">", 'g'), "@"+mention.nickname+"@");
-				messageContent = messageContent.replace(new RegExp("<@!"+mention.userId+">", 'g'), "@"+mention.nickname+"@");
+				let nickname = await message.guild.members.fetch(user.id).then(res => res.nickname);
+				messageContent = messageContent.replace(new RegExp("<@!"+user.id+">", 'g'), "@"+nickname+"@");
 			} 
-			
-		}
-	}
-	
-	var mentions = [];
-	message.mentions.channels.forEach(channel => {
-		mentions.push({"channelId": channel.id, "name": channel.name});
-	});
-	for (mention of mentions) {
-		if(messageContent.includes(mention.channelId)) {
-			if (serverData.channelMentionsMode == 0) {
-				messageContent = messageContent.replace(new RegExp("<#"+mention.channelId+">", 'g'), "#"+mention.channelId);
-				messageContent = messageContent.replace(new RegExp("<#!"+mention.channelId+">", 'g'), "#"+mention.channelId);
-			} else if (serverData.channelMentionsMode == 1) {
-				messageContent = messageContent.replace(new RegExp("<#"+mention.channelId+">", 'g'), "#"+mention.name);
-				messageContent = messageContent.replace(new RegExp("<#!"+mention.channelId+">", 'g'), "#"+mention.name);
-			} else if (serverData.channelMentionsMode == 2) {
-				messageContent = messageContent.replace(new RegExp("<#"+mention.channelId+">", 'g'), "#"+mention.channelId+"#");
-				messageContent = messageContent.replace(new RegExp("<#!"+mention.channelId+">", 'g'), "#"+mention.channelId+"#");
-			} else {
-				messageContent = messageContent.replace(new RegExp("<#"+mention.channelId+">", 'g'), "#"+mention.name+"#");
-				messageContent = messageContent.replace(new RegExp("<#!"+mention.channelId+">", 'g'), "#"+mention.name+"#");
+		});
+		
+		var mentions = [];
+		message.mentions.channels.forEach(channel => {
+			mentions.push({"channelId": channel.id, "name": channel.name});
+		});
+		for (mention of mentions) {
+			if(messageContent.includes(mention.channelId)) {
+				if (serverData.channelMentionsMode == 0) {
+					messageContent = messageContent.replace(new RegExp("<#"+mention.channelId+">", 'g'), "#"+mention.channelId);
+					messageContent = messageContent.replace(new RegExp("<#!"+mention.channelId+">", 'g'), "#"+mention.channelId);
+				} else if (serverData.channelMentionsMode == 1) {
+					messageContent = messageContent.replace(new RegExp("<#"+mention.channelId+">", 'g'), "#"+mention.name);
+					messageContent = messageContent.replace(new RegExp("<#!"+mention.channelId+">", 'g'), "#"+mention.name);
+				} else if (serverData.channelMentionsMode == 2) {
+					messageContent = messageContent.replace(new RegExp("<#"+mention.channelId+">", 'g'), "#"+mention.channelId+"#");
+					messageContent = messageContent.replace(new RegExp("<#!"+mention.channelId+">", 'g'), "#"+mention.channelId+"#");
+				} else {
+					messageContent = messageContent.replace(new RegExp("<#"+mention.channelId+">", 'g'), "#"+mention.name+"#");
+					messageContent = messageContent.replace(new RegExp("<#!"+mention.channelId+">", 'g'), "#"+mention.name+"#");
+				}
 			}
 		}
-	}
-	
-	var mentions = [];
-	message.mentions.roles.forEach(role => {
-		mentions.push({"roleId": role.id, "name": role.name, "color": role.color.toString(16)});
-	});
-	for (mention of mentions) {
-		if(messageContent.includes(mention.roleId)) {
-			if (serverData.roleMentionsMode == 0) {
-				messageContent = messageContent.replace(new RegExp("<@&"+mention.roleId+">", 'g'), "&"+mention.roleId);
-				messageContent = messageContent.replace(new RegExp("<@&!"+mention.roleId+">", 'g'), "&"+mention.roleId);
-			} else if (serverData.roleMentionsMode == 1) {
-				messageContent = messageContent.replace(new RegExp("<@&"+mention.roleId+">", 'g'), "&"+mention.name);
-				messageContent = messageContent.replace(new RegExp("<@&!"+mention.roleId+">", 'g'), "&"+mention.name);
-			} else {
-				messageContent = messageContent.replace(new RegExp("<@&"+mention.roleId+">", 'g'), "&"+mention.name+"#"+mention.color);
-				messageContent = messageContent.replace(new RegExp("<@&!"+mention.roleId+">", 'g'), "&"+mention.name+"#"+mention.color);
+		
+		var mentions = [];
+		message.mentions.roles.forEach(role => {
+			mentions.push({"roleId": role.id, "name": role.name, "color": role.color.toString(16)});
+		});
+		for (mention of mentions) {
+			if(messageContent.includes(mention.roleId)) {
+				if (serverData.roleMentionsMode == 0) {
+					messageContent = messageContent.replace(new RegExp("<@&"+mention.roleId+">", 'g'), "&"+mention.roleId);
+					messageContent = messageContent.replace(new RegExp("<@&!"+mention.roleId+">", 'g'), "&"+mention.roleId);
+				} else if (serverData.roleMentionsMode == 1) {
+					messageContent = messageContent.replace(new RegExp("<@&"+mention.roleId+">", 'g'), "&"+mention.name);
+					messageContent = messageContent.replace(new RegExp("<@&!"+mention.roleId+">", 'g'), "&"+mention.name);
+				} else {
+					messageContent = messageContent.replace(new RegExp("<@&"+mention.roleId+">", 'g'), "&"+mention.name+"#"+mention.color);
+					messageContent = messageContent.replace(new RegExp("<@&!"+mention.roleId+">", 'g'), "&"+mention.name+"#"+mention.color);
+				}
 			}
 		}
-	}
 
-	if (serverData.authorMode == 0) {
-		var author = message.author.id;
-	} else if (serverData.authorMode == 1) {
-		var author = message.author.username;
-	} else if (serverData.authorMode == 2) {
-		var author = message.author.tag;
-	} else {
-		var author = message.member.nickname || message.author.username;
-	}
-	
-	return {message:emoji.unemojify(messageContent), id:message.id, time:message.createdTimestamp, timeEdit:(message.editedTimestamp || ""), user:author, links:JSON.stringify(l), images:JSON.stringify(i)};
+		if (serverData.authorMode == 0) {
+			var author = message.author.id;
+		} else if (serverData.authorMode == 1) {
+			var author = message.author.username;
+		} else if (serverData.authorMode == 2) {
+			var author = message.author.tag;
+		} else {
+			var author = message.member.nickname || message.author.username;
+		}
+		
+		resolve({message:emoji.unemojify(messageContent), id:message.id, time:message.createdTimestamp, timeEdit:(message.editedTimestamp || ""), user:author, links:JSON.stringify(l), images:JSON.stringify(i)});
+	});
 }
 
 function getTimestamp() {
 	var d = new Date();
 	
 	return "["+d.getDate()+"/"+(d.getMonth()+1)+"/"+d.getFullYear()+" - "+d.getHours()+":"+d.getMinutes()+":"+d.getSeconds()+"."+d.getMilliseconds()+"]";
+}
+
+async function asyncForEach(array, callback) {
+	for (let index = 0; index < array.length; index++) {
+	  	await callback(array[index], index, array);
+	}
 }
