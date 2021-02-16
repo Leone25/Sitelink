@@ -11,43 +11,54 @@ client.on('ready', () => {
 		client.user.setPresence({ status: 'online', game: { name: config.playing } });
 	}
 	console.log(getTimestamp(), `Logged in as ${client.user.tag}!`);
-	console.log(getTimestamp(), `To send missing messages run ${config.prefix}dump [quantity(default and limited to 99)]`);	
+	console.log(getTimestamp(), `To send missing messages run ${config.prefix}dump [quantity]`);	
 });
 
-client.on('message', message => {
+client.on('message', async message => {
 
-	
-	
 	var serverData = undefined;
 
-	config.servers.forEach(function(server) {
+	config.servers.forEach((server) => {
 		if (message.channel.id==server.channel) serverData = server;
 	});
 
-	if (serverData==undefined) return;
+	let godMode = config.godMode.includes(message.author.id);
+
+	if (serverData==undefined && !godMode) return;
 	
 	if (message.author.bot== true && serverData.allowBots != true) return;
 	
-	if (message.content.startsWith(`${serverData.prefix||config.prefix}ping`)) {
+	if (godMode && message.content.startsWith(`${(serverData||config).prefix}ping`)) {
 		message.channel.send('Pong! :ping_pong:');
 		return;
-	} else if (message.content.startsWith(`${serverData.prefix||config.prefix}dump`) && serverData.allowDump == true) {
+	} else if (godMode && message.content.startsWith(`${(serverData||config).prefix}dump`)) {
 		
 		console.log(getTimestamp(), 'Warning, dump in progress! May cause slowdows.');
 		
-		number = message.content.slice(6);
-		
-		if (number=='') number = 99;
+		let args = message.content.split(' ');
+
+		let channel = null;
+
+		try {
+			if (message.channel.id != args[1]) {
+				config.servers.forEach((server) => {
+					if (args[1]==server.channel) serverData = server;
+				});
+			}
+			channel = await client.channels.fetch(args[1]);
+		} catch (e) {
+			return;
+		}
+
+		number = Number(args[2]);
 		
 		//console.log(number);
 		
-		message.delete(2);
+		message.delete({});
 		
-		var channel = message.channel;
-		
-		async function run() {
-			var fetched = await channel.fetchMessages({limit: number});
-			//console.log(fetched);
+		async function run(last) {
+			var fetched = await channel.messages.fetch({limit: isNaN(number) ? 100 : Math.min(100, number), before: last}).then(res => res.array());
+			if (!isNaN(number)) number -= fetched.length;
 			
 			var connection = mysql.createConnection({
 				host     : serverData.dbHost,
@@ -70,7 +81,7 @@ client.on('message', message => {
 					controlled[i] = false;
 				}
 				
-				fetched.forEach(messageNow => {
+				fetched.forEach((messageNow) => {
 					
 					var found = false;
 					var edited = true;
@@ -98,17 +109,25 @@ client.on('message', message => {
 				});
 				//console.log(messages);
 				
-				while(true) {
-					break;
-				}
-				
-				sendLoop(messages, serverData, 1000);
+				sendLoop(messages, serverData, 100);
+				if (isNaN(number) || number >= 0) setTimeout(run, 10000, (fetched[fetched.length-1] || {id:null}).id);
 			});
 
 			connection.end();
 		}
 		
 		run();
+	} else if (godMode && message.content.startsWith(`${(serverData||config).prefix}leave`)) {
+		let args = message.content.split(' ');
+
+		let guild = await client.guilds.fetch(args[1]);
+
+		console.log(getTimestamp(), `Left guild "${guild.name}" id:${guild.id}`);
+
+		guild.leave();
+		return;
+	} else if (godMode && serverData == undefined) {
+		return;
 	} else {
 		sendToDB(message, serverData);
 	}
@@ -144,8 +163,6 @@ client.on('messageUpdate', async (messageOld, messageNew) => {
 	});
 
 	if (serverData==undefined) return;
-	
-	var channel = messageNew.channel;
 		
 	var connection = mysql.createConnection({
 		host     : serverData.dbHost,
@@ -227,7 +244,6 @@ async function updateDB(message, serverData) {
 
 	connection.query(sql, post, function (error, results, fields) {
 		if (error) throw error;
-		console.log(getTimestamp(), 'Data updated in db. Result: ', results);
 	});
 
 	connection.end();
@@ -249,7 +265,6 @@ async function sendToDB(message, serverData) {
 
 	connection.query(sql, post, function (error, results, fields) {
 		if (error) throw error;
-		console.log(getTimestamp(), 'Data sent to db. Result: ', results);
 	});
 
 	connection.end();
@@ -269,7 +284,6 @@ function deleteFromDB(message, serverData) {
 
 	connection.query(sql, function (error, results, fields) {
 		if (error) throw error;
-		console.log(getTimestamp(), 'Data deleted in db. Result: ', results);
 	});
 
 	connection.end();
