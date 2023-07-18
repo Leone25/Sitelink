@@ -1,3 +1,5 @@
+**ARCHIVED, because honestly this is super outdated and i will not update it**
+
 # SiteLink
 ## Message to mysql database discord bot
 The purpose of this bot is to dump the messages sent in a chat channel of discord to a MySQL database, with content, time, id, sender id, attachments links and image links all separated.
